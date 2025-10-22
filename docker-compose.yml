@@ -1,4 +1,6 @@
 services:
+# infrastructure
+
   configserver:
     image: "ghcr.io/mazaadak/config-server:latest"
     container_name: configserver
@@ -34,16 +36,11 @@ services:
       file: common-config.yml
       service: config-server-config
 
-  mazadakgateway:
+  mazadak-gateway:
     image: "ghcr.io/mazaadak/mazadak-gateway:latest"
     container_name: mazadak-gateway
     ports:
       - "18090:18090"
-    depends_on:
-      configserver:
-        condition: service_healthy
-      eurekaserver:
-        condition: service_healthy
     extends:
       file: common-config.yml
       service: eureka-config
@@ -73,6 +70,150 @@ services:
     extends:
       file: common-config.yml
       service: network
+
+  temporal:
+    image: temporalio/auto-setup
+    ports:
+      - "7233:7233"
+    environment:
+      DB: postgres12
+      DB_PORT: 5432
+      POSTGRES_USER: temporal
+      POSTGRES_PWD: temporal
+      POSTGRES_SEEDS: postgres
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15.14-alpine3.21
+    environment:
+      - POSTGRES_USER=temporal
+      - POSTGRES_PASSWORD=temporal
+    ports:
+      - "5432:5432"
+
+  temporal-ui:
+    image: temporalio/ui:latest
+    ports:
+      - "8088:8080"
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    depends_on:
+      - temporal
+
+# observability
+
+# services
+  product-catalog-service:
+    image: ghcr.io/mazaadak/product-catalog
+    container_name: product-catalog-service
+    ports:
+      - 18086:18086
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+  auction-service:
+    image: ghcr.io/mazaadak/mazadak-auctions
+    container_name: auctions-service
+    ports:
+      - 18089:18089
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+  inventory-service:
+    image: ghcr.io/mazaadak/mazadak-inventory-service
+    container_name: inventory-service
+    ports:
+      - 18085:18085
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://inventory-db:5432/inventory_db
+    depends_on:
+      inventory-db:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+  cart-service:
+    image: ghcr.io/mazaadak/mazadak-cart-service
+    container_name: cart-service
+    ports:
+      - 18087:18087
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://cart-db:5432/cartdb
+    depends_on:
+      inventory-db:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+  user-service:
+    image: ghcr.io/mazaadak/user-service
+    container_name: user-service
+    ports:
+      - 18180:18180
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://user-db:5432/postgres
+    depends_on:
+      user-db:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+  payment-service:
+    image: ghcr.io/mazaadak/payment-service
+    container_name: payment-service
+    ports:
+      - 18081:18081
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+# databases
+  inventory-db:
+    image: postgres:15.14-alpine3.21
+    container_name: inventory-db
+    ports:
+      - 15439:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: inventory_db
+    extends:
+      file: common-config.yml
+      service: network
+
+  cart-db:
+    image: postgres:15.14-alpine3.21
+    container_name: cart-db
+    ports:
+      - 15432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: cartdb
+    extends:
+      file: common-config.yml
+      service: network
+
+  user-db:
+    image: postgres:15.14-alpine3.21
+    container_name: user-db
+    ports:
+      - 5452:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: postgres
+    extends:
+      file: common-config.yml
+      service: network
+
+
 
 networks:
   mazadak:

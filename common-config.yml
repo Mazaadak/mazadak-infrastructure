@@ -16,12 +16,18 @@ services:
   config-server-config:
     extends:
       service: service-base-config
+    depends_on:
+      configserver:
+        condition: service_healthy
     environment:
       SPRING_CONFIG_IMPORT: configserver:http://configserver:18071/
 
   eureka-config:
     extends:
       service: config-server-config
+    depends_on:
+      eurekaserver:
+        condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:18050/eureka/
 
