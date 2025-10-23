@@ -38,6 +38,7 @@ services:
 
   mazadak-gateway:
     image: "ghcr.io/mazaadak/mazadak-gateway:latest"
+#    image: "hasalism/gateway:v1"
     container_name: mazadak-gateway
     ports:
       - "18090:18090"
@@ -106,6 +107,7 @@ services:
 # services
   product-catalog-service:
     image: ghcr.io/mazaadak/product-catalog
+#    image: hasalism/product-catalog:v1
     container_name: product-catalog-service
     ports:
       - 18086:18086
@@ -151,6 +153,7 @@ services:
       service: eureka-config
 
   user-service:
+#    image: hasalism/user-service:v1
     image: ghcr.io/mazaadak/user-service
     container_name: user-service
     ports:
@@ -169,6 +172,18 @@ services:
     container_name: payment-service
     ports:
       - 18081:18081
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+  order-service:
+    image: ghcr.io/mazaadak/mazadak-orders
+    container_name: order-service
+    ports:
+      - 18088:18088
+    depends_on:
+      temporal:
+        condition: service_healthy
     extends:
       file: common-config.yml
       service: eureka-config
