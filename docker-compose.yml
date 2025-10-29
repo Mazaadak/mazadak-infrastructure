@@ -72,6 +72,21 @@ services:
       file: common-config.yml
       service: network
 
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    ports:
+      - 18098:8080
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:29092
+    depends_on:
+      broker:
+        condition: service_started
+    extends:
+      file: common-config.yml
+      service: network
+
   temporal:
     image: temporalio/auto-setup
     ports:
@@ -84,6 +99,9 @@ services:
       POSTGRES_SEEDS: postgres
     depends_on:
       - postgres
+    extends:
+      file: common-config.yml
+      service: network
 
   postgres:
     image: postgres:15.14-alpine3.21
@@ -92,6 +110,9 @@ services:
       - POSTGRES_PASSWORD=temporal
     ports:
       - "5432:5432"
+    extends:
+      file: common-config.yml
+      service: network
 
   temporal-ui:
     image: temporalio/ui:latest
@@ -101,6 +122,30 @@ services:
       TEMPORAL_ADDRESS: temporal:7233
     depends_on:
       - temporal
+    extends:
+      file: common-config.yml
+      service: network
+
+  maildev:
+    image: maildev/maildev
+    container_name: maildev
+    ports:
+      - 1080:1080
+      - 1025:1025
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('net').connect(1080, '127.0.0.1').on('connect', () => process.exit(0)).on('error', () => process.exit(1))\""
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    extends:
+      file: common-config.yml
+      service: network
+
 
 # observability
 
@@ -111,12 +156,15 @@ services:
     container_name: product-catalog-service
     ports:
       - 18086:18086
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
     extends:
       file: common-config.yml
       service: eureka-config
 
   auction-service:
     image: ghcr.io/mazaadak/mazadak-auctions
+#    image: hasalism/auctions:v1
     container_name: auctions-service
     ports:
       - 18089:18089
@@ -126,6 +174,7 @@ services:
 
   inventory-service:
     image: ghcr.io/mazaadak/mazadak-inventory-service
+#    image: hasalism/inventory-service:v1
     container_name: inventory-service
     ports:
       - 18085:18085
@@ -178,12 +227,31 @@ services:
 
   order-service:
     image: ghcr.io/mazaadak/mazadak-orders
+#    image: hasalism/orders:v1
     container_name: order-service
     ports:
       - 18088:18088
     depends_on:
       temporal:
         condition: service_healthy
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    extends:
+      file: common-config.yml
+      service: eureka-config
+
+  notifications-service:
+    image: hasalism/notifications-service:v1
+#    image: ghcr.io/mazaadak/mazadak-notifications
+    container_name: notifications
+    ports:
+      - 18084:18084
+    depends_on:
+      maildev:
+        condition: service_healthy
+    environment:
+      MAILDEV_HOST: maildev
+      SPRING_MAIL_PORT: 1025
     extends:
       file: common-config.yml
       service: eureka-config
