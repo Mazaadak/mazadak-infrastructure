@@ -241,8 +241,8 @@ services:
       service: eureka-config
 
   notifications-service:
-    image: hasalism/notifications-service:v1
-#    image: ghcr.io/mazaadak/mazadak-notifications
+#    image: hasalism/notifications-service:v1
+    image: ghcr.io/mazaadak/mazadak-notifications
     container_name: notifications
     ports:
       - 18084:18084
