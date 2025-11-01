@@ -296,8 +296,6 @@ services:
       file: common-config.yml
       service: network
 
-
-
 networks:
   mazadak:
     driver: "bridge"
