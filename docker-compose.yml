@@ -169,6 +169,20 @@ services:
       file: common-config.yml
       service: network
 
+  stripe-webhook:
+    image: stripe/stripe-cli
+    container_name: stripe-webhook
+    command:
+      - "listen"
+      - "--api-key"
+      - "${STRIPE_SECRET_KEY}"
+      - "--forward-to"
+      - "http://payment-service:18081/api/payments/stripe-webhook"
+    depends_on:
+      - payment-service
+    extends:
+      file: common-config.yml
+      service: network
 
 # observability
 
@@ -186,11 +200,13 @@ services:
       service: eureka-config
 
   auction-service:
-#    image: ghcr.io/mazaadak/mazadak-auctions
-    image: hasalism/auctions:v1
+    image: ghcr.io/mazaadak/mazadak-auctions
+#    image: hasalism/auctions:v1
     container_name: auctions-service
     ports:
       - 18089:18089
+    environment:
+      SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS: true
     extends:
       file: common-config.yml
       service: eureka-config
@@ -254,9 +270,6 @@ services:
     container_name: order-service
     ports:
       - 18088:18088
-    depends_on:
-      temporal:
-        condition: service_healthy
     environment:
       TEMPORAL_ADDRESS: temporal:7233
     extends:
@@ -318,8 +331,6 @@ services:
     extends:
       file: common-config.yml
       service: network
-
-
 
 networks:
   mazadak:
