@@ -38,7 +38,7 @@ services:
 
   mazadak-gateway:
     image: "ghcr.io/mazaadak/mazadak-gateway:latest"
-#    image: "hasalism/gateway:v1"
+#    image: "hasalism/gateway"
     container_name: mazadak-gateway
     ports:
       - "18090:18090"
@@ -167,6 +167,7 @@ services:
   product-catalog-service:
     image: ghcr.io/mazaadak/product-catalog
 #    image: hasalism/product-catalog:v1
+#    image: mazaadak/product-catalog:v1
     container_name: product-catalog-service
     ports:
       - 18086:18086
@@ -179,6 +180,7 @@ services:
   auction-service:
     image: ghcr.io/mazaadak/mazadak-auctions
 #    image: hasalism/auctions:v1
+#    image: mazaadak/auctions:v1
     container_name: auctions-service
     ports:
       - 18089:18089
@@ -205,6 +207,7 @@ services:
 
   cart-service:
     image: ghcr.io/mazaadak/mazadak-cart-service
+#    image: mazaadak/cart-service:v1
     container_name: cart-service
     ports:
       - 18087:18087
@@ -219,6 +222,7 @@ services:
 
   user-service:
 #    image: hasalism/user-service:v1
+#    image: mazaadak/user-service:v1
     image: ghcr.io/mazaadak/user-service
     container_name: user-service
     ports:
@@ -234,6 +238,7 @@ services:
 
   payment-service:
     image: ghcr.io/mazaadak/payment-service
+#    image: mazaadak/payment-service:v1
     container_name: payment-service
     ports:
       - 18081:18081
@@ -244,17 +249,20 @@ services:
   order-service:
     image: ghcr.io/mazaadak/mazadak-orders
 #    image: hasalism/orders:v1
+#    image: mazaadak/orders:v1
     container_name: order-service
     ports:
       - 18088:18088
     environment:
       TEMPORAL_ADDRESS: temporal:7233
+      SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS: true
     extends:
       file: common-config.yml
       service: eureka-config
 
   notifications-service:
 #    image: hasalism/notifications-service:v1
+#    image: mazaadak/notifications-service:v1
     image: ghcr.io/mazaadak/mazadak-notifications
     container_name: notifications
     ports:

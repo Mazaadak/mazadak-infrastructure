@@ -8,10 +8,13 @@ services:
       service: network
     environment:
       SPRING_KAFKA_BOOTSTRAP-SERVERS: broker:9092
+      JAVA_OPTS: "-Xmx512m -Xms256m"
     deploy:
       resources:
         limits:
-          memory: 700m
+          memory: 1500m
+        reservations:
+          memory: 512m
 
   config-server-config:
     extends:
@@ -30,5 +33,3 @@ services:
         condition: service_healthy
     environment:
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:18050/eureka/
-
-
