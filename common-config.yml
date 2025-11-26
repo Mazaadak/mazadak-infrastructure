@@ -9,6 +9,10 @@ services:
     environment:
       SPRING_KAFKA_BOOTSTRAP-SERVERS: broker:9092
       JAVA_OPTS: "-Xmx512m -Xms256m"
+      JAVA_TOOL_OPTIONS: "-javaagent:/app/libs/opentelemetry-javaagent-2.11.0.jar"
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4318
+      OTEL_METRICS_EXPORTER: none
+      OTEL_LOGS_EXPORTER: none
     deploy:
       resources:
         limits:
