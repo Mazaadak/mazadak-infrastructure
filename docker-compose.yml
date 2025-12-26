@@ -2,7 +2,6 @@ services:
 # infrastructure
   configserver:
     image: "ghcr.io/mazaadak/config-server:latest"
-#    image: "mazaadak/configserver:v1"
     container_name: configserver
     ports:
       - "18071:18071"
@@ -12,15 +11,12 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-    environment:
-      MAZADAK_GITHUB_TOKEN: ${MAZADAK_GITHUB_TOKEN}
     extends:
       file: common-config.yml
       service: service-base-config
 
   eurekaserver:
     image: "ghcr.io/mazaadak/eureka-server:latest"
-#    image: "ghcr.io/mazaadak/eurekaserver:latest"
     container_name: eurekaserver
     ports:
       - "18050:18050"
@@ -39,7 +35,6 @@ services:
 
   mazadak-gateway:
     image: "ghcr.io/mazaadak/mazadak-gateway:latest"
-#    image: "hasalism/gateway"
     container_name: mazadak-gateway
     ports:
       - "18090:18090"
@@ -181,7 +176,7 @@ services:
       - "http://payment-service:18081/api/payments/stripe-webhook"
     depends_on:
       payment-service:
-        condition: service_healthy  # Wait for healthy status
+        condition: service_healthy  
     extends:
       file: common-config.yml
       service: network
@@ -203,11 +198,11 @@ services:
       - MINIO_UPDATE=off
     ports:
       - "9000:9000"
-      - "9001:9001"  # Add console port
+      - "9001:9001"  
     volumes:
       - ./.data/minio:/data
     healthcheck:
-      test: ["CMD", "mc", "ready", "local"]  # Better health check
+      test: ["CMD", "mc", "ready", "local"]  
       interval: 15s
       timeout: 20s
       retries: 5
@@ -229,8 +224,8 @@ services:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10  # Increase retries
-      start_period: 60s  # Increase start period significantly
+      retries: 10  
+      start_period: 60s  
     networks: &loki-dns
       mazadak:
         aliases:
@@ -249,8 +244,8 @@ services:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3100/ready || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 10  # Increase retries
-      start_period: 60s  # Increase start period
+      retries: 10  
+      start_period: 60s  
     depends_on:
       minio:
         condition: service_healthy
@@ -261,9 +256,9 @@ services:
     image: nginx:latest
     depends_on:
       read:
-        condition: service_started  # Changed from service_healthy
+        condition: service_started  
       write:
-        condition: service_started  # Changed from service_healthy
+        condition: service_started 
     entrypoint:
       - sh
       - -euc
@@ -348,7 +343,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 40s # <-- Crucially, increase the start period
+      start_period: 40s
     extends:
       file: common-config.yml
       service: network
@@ -452,8 +447,6 @@ services:
 # services
   product-catalog-service:
     image: ghcr.io/mazaadak/product-catalog
-#    image: hasalism/product-catalog:v1
-#    image: mazaadak/product-catalog:v1
     container_name: product-catalog-service
     ports:
       - 18086:18086
@@ -469,13 +462,10 @@ services:
 
   auction-service:
     image: ghcr.io/mazaadak/mazadak-auctions
-#    image: hasalism/auctions:v1
-#    image: mazaadak/auctions:v1
     container_name: auctions-service
     ports:
       - 18089:18089
     environment:
-#      SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS: true
       "SPRING_DATASOURCE_URL": jdbc:postgresql://auction-db:5432/auctiondb
       "SPRING_DATASOURCE_USERNAME": postgres
       "SPRING_DATASOURCE_PASSWORD": postgres
@@ -486,7 +476,6 @@ services:
 
   inventory-service:
     image: ghcr.io/mazaadak/mazadak-inventory-service
-#    image: hasalism/inventory-service:v1
     container_name: inventory-service
     ports:
       - 18085:18085
@@ -501,7 +490,6 @@ services:
 
   cart-service:
     image: ghcr.io/mazaadak/mazadak-cart-service
-#    image: mazaadak/cart-service:v1
     container_name: cart-service
     ports:
       - 18087:18087
@@ -515,8 +503,6 @@ services:
       service: eureka-config
 
   user-service:
-#    image: hasalism/user-service:v1
-#    image: mazaadak/user-service:v1
     image: ghcr.io/mazaadak/user-service
     container_name: user-service
     ports:
@@ -552,14 +538,11 @@ services:
 
   order-service:
     image: ghcr.io/mazaadak/mazadak-orders
-#    image: hasalism/orders:v1
-#    image: mazaadak/orders:v1
     container_name: order-service
     ports:
       - 18088:18088
     environment:
       TEMPORAL_ADDRESS: temporal:7233
-#      SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS: true
       SPRING_DATASOURCE_URL: jdbc:postgresql://order-db:5432/orderdb
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
@@ -569,8 +552,6 @@ services:
       service: eureka-config
 
   notifications-service:
-#    image: hasalism/notifications-service:v1
-#    image: mazaadak/notifications-service:v1
     image: ghcr.io/mazaadak/mazadak-notifications
     container_name: notifications
     ports:
