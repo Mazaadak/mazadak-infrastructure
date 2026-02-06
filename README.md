@@ -7,6 +7,8 @@ It orchestrates all microservices, databases, message brokers, caching layers, o
 
 Use this repository to spin up the complete Mazadak ecosystem with a single command.
 
+For more detailed instructions and how to to run the front end, check [Environment Set-up](https://github.com/Mazaadak/.github/wiki/Environment-Setup)
+
 > This setup is intended for local development and testing, not production deployment.
 
 
@@ -26,8 +28,14 @@ Use this repository to spin up the complete Mazadak ecosystem with a single comm
 
 To clone all Mazadak repositories at once into the current directory, use the provided script:
 
+**Linux/Mac:**
 ```bash
 ./clone-all-repos.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+.\clone-all-repos.ps1
 ```
 
 Make sure you have Git configured and authenticated with GitHub.
