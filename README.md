@@ -24,13 +24,18 @@ Use this repository to spin up the complete Mazadak ecosystem with a single comm
 
 ### Clone All Repositories
 
-To clone all Mazadak repositories at once, use the provided script:
+To clone all Mazadak repositories at once into the current directory, use the provided script:
 
 ```bash
 ./clone-all-repos.sh
 ```
 
-This will clone all service repositories into the current directory. Make sure you have Git configured and authenticated with GitHub.
+Make sure you have Git configured and authenticated with GitHub.
+
+The script intentionally excludes:
+- [.github](https://github.com/Mazaadak/.github) (organization-level configuration)
+- [Project management repository](https://github.com/Mazaadak/mazadak-project-management) (GitHub Projects / planning only)
+
 
 ## How to Run
 
